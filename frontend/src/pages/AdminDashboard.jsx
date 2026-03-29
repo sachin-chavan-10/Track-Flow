@@ -154,27 +154,63 @@ export default function AdminDashboard() {
 
   const renderContent = () => {
     switch (active) {
-      case 'dashboard':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-gray-800">Admin Dashboard</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Welcome back, {user?.name}</p>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <SummaryCard label="Total Users"    value={users.length}   color="blue"   icon="👥" />
-              <SummaryCard label="Total Expenses" value={expenses.length} color="gray"  icon="🧾" />
-              <SummaryCard label="Pending Review" value={expenses.filter(e=>e.status==='pending').length} color="yellow" icon="⏳" />
-              <SummaryCard label="Approved"       value={expenses.filter(e=>e.status==='approved').length} color="green" icon="✅" />
-            </div>
-            <div className="card">
-              <h3 className="font-semibold text-gray-800 mb-4">Recent Expenses</h3>
-              {loadingData ? <Loading /> : (
-                <ExpenseTable expenses={expenses.slice(0,5).map(e=>({...e,id:e._id,category:e.category,status:e.status?.charAt(0).toUpperCase()+e.status?.slice(1),employee:e.user?.name}))} showEmployee onView={setSelectedExpense} />
-              )}
-            </div>
-          </div>
-        );
+   case 'dashboard':
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h2>
+        <p className="text-sm text-gray-500 mt-1">Welcome back, {user?.name}</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Total Users</p>
+          <h3 className="text-3xl font-bold mt-2 text-gray-900">{users.length}</h3>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Total Expenses</p>
+          <h3 className="text-3xl font-bold mt-2 text-gray-900">{expenses.length}</h3>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Pending Review</p>
+          <h3 className="text-3xl font-bold mt-2 text-yellow-500">
+            {expenses.filter(e => e.status === 'pending').length}
+          </h3>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Approved</p>
+          <h3 className="text-3xl font-bold mt-2 text-green-600">
+            {expenses.filter(e => e.status === 'approved').length}
+          </h3>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border shadow-sm p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-semibold text-gray-800 text-lg">Recent Expenses</h3>
+        </div>
+
+        {loadingData ? (
+          <Loading />
+        ) : (
+          <ExpenseTable
+            expenses={expenses.slice(0, 5).map(e => ({
+              ...e,
+              id: e._id,
+              category: e.category,
+              status: e.status?.charAt(0).toUpperCase() + e.status?.slice(1),
+              employee: e.user?.name,
+            }))}
+            showEmployee
+            onView={setSelectedExpense}
+          />
+        )}
+      </div>
+    </div>
+  );
 
       case 'users':
         return (
@@ -251,24 +287,29 @@ export default function AdminDashboard() {
     }
   };
 
-  return (
-    <div className="flex flex-col h-screen">
-      <Navbar />
-      <div className="flex flex-1 overflow-hidden">
+return (
+  <div className="flex flex-col h-screen bg-gray-50">
+    <Navbar />
+    <div className="flex flex-1 overflow-hidden">
+      <div className="bg-white border-r border-gray-200 shadow-sm">
         <Sidebar role="admin" active={active} onNavigate={setActive} />
-        <main className="flex-1 overflow-y-auto p-6">{renderContent()}</main>
       </div>
 
-      <Modal isOpen={modal?.type==='addUser'} onClose={() => setModal(null)} title="Add New User">
-        <AddUserForm onSave={handleAddUser} onCancel={() => setModal(null)} managers={managers} />
-      </Modal>
-      <Modal isOpen={modal?.type==='addRule'||modal?.type==='editRule'} onClose={() => setModal(null)}
-        title={modal?.type==='editRule' ? 'Edit Rule' : 'Create Approval Rule'} size="lg">
-        <ApprovalRuleForm onSave={handleSaveRule} initial={modal?.data} />
-      </Modal>
-      <Modal isOpen={!!selectedExpense} onClose={() => setSelectedExpense(null)} title="Expense Details" size="lg">
-        <ExpenseDetailsModal expense={selectedExpense} />
-      </Modal>
+      <main className="flex-1 overflow-y-auto px-8 py-6">
+        <div className="max-w-7xl mx-auto">{renderContent()}</div>
+      </main>
     </div>
-  );
+
+    <Modal isOpen={modal?.type==='addUser'} onClose={() => setModal(null)} title="Add New User">
+      <AddUserForm onSave={handleAddUser} onCancel={() => setModal(null)} managers={managers} />
+    </Modal>
+    <Modal isOpen={modal?.type==='addRule'||modal?.type==='editRule'} onClose={() => setModal(null)}
+      title={modal?.type==='editRule' ? 'Edit Rule' : 'Create Approval Rule'} size="lg">
+      <ApprovalRuleForm onSave={handleSaveRule} initial={modal?.data} />
+    </Modal>
+    <Modal isOpen={!!selectedExpense} onClose={() => setSelectedExpense(null)} title="Expense Details" size="lg">
+      <ExpenseDetailsModal expense={selectedExpense} />
+    </Modal>
+  </div>
+);
 }
